@@ -18,10 +18,39 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+}
+
+
+@layer utilities {
+  .btn[disabled] {
+    @apply bg-gray-300 text-gray-500 cursor-not-allowed opacity-60;
+  }
+}
+
+/* Additional styles for the enabled button */
+@layer components {
+  .btn {
+    @apply bg-blue-500 text-white px-4 py-2 rounded-md;
+  }
+}
+
+.scrollbar {
+
+  /* Custom scrollbar styles for webkit-based browsers */
+  ::-webkit-scrollbar {
+    width: 10px; /* Adjust the width as needed */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #4a90e2; /* Color of the scrollbar thumb */
+    border-radius: 5px; /* Adjust the border radius as needed */
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Color of the scrollbar track */
+  }
+
+  /* Custom scrollbar styles for other browsers (Firefox) */
+  scrollbar-width: thin; /* "auto" for the default scrollbar, "thin" for a thinner scrollbar */
+  scrollbar-color: #4a90e2 #f1f1f1; /* Thumb and track colors, adjust as needed */
 }
