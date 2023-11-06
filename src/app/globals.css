@@ -2,20 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
 body {
   color: rgb(var(--foreground-rgb));
 }
@@ -32,25 +18,4 @@ body {
   .btn {
     @apply bg-blue-500 text-white px-4 py-2 rounded-md;
   }
-}
-
-.scrollbar {
-
-  /* Custom scrollbar styles for webkit-based browsers */
-  ::-webkit-scrollbar {
-    width: 10px; /* Adjust the width as needed */
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: #4a90e2; /* Color of the scrollbar thumb */
-    border-radius: 5px; /* Adjust the border radius as needed */
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: #f1f1f1; /* Color of the scrollbar track */
-  }
-
-  /* Custom scrollbar styles for other browsers (Firefox) */
-  scrollbar-width: thin; /* "auto" for the default scrollbar, "thin" for a thinner scrollbar */
-  scrollbar-color: #4a90e2 #f1f1f1; /* Thumb and track colors, adjust as needed */
 }

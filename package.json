@@ -2,6 +2,7 @@
   "name": "ollama-chat",
   "version": "0.1.0",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tauri-apps/api": "^1.5.1",
     "axios": "^1.6.0",
     "markdown-to-jsx": "^7.3.2",
     "next": "14.0.1",

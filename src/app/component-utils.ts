@@ -5,6 +5,7 @@ export const OllamaModelItems = async () => {
     const availableModels = await callOllama({ endPoint: "getTags" });
     const availableModelNames = availableModels.models.map(({ name }: any) => name);
 
+
     const ollamaModels = Object.values(OLlamaModel);
 
     const items = [];

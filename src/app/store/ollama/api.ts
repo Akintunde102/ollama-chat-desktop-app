@@ -4,7 +4,7 @@ export const ollamaRequestCancellationSource = axios.CancelToken.source();
 
 export type OllamaEndpoints = "postPrompt" | "getTags";
 
-export const OLLAMA_ROOT_ENDPOINT = "http://localhost:11434/api";
+export const OLLAMA_ROOT_ENDPOINT = "http://localhost:11436/api";
 
 export const OLLAMA_ENDPOINTS: Record<OllamaEndpoints, {
     verb: "post" | "get",

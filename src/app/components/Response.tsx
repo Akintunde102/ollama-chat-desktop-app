@@ -11,14 +11,13 @@ export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
     }
 
     const responseArr = response.split("\n");
-
     const { model } = JSON.parse(responseArr[0]);
 
     return (
-        <div className="mt-4">
+        <div className="mt-10">
             <div className="flex justify-between">
                 <div className="text-left">
-                    <h2 className="text-lg font-bold mb-2">Response:</h2>
+                    <h2 className="block text-gray-700 font-bold mb-2">Response:</h2>
                 </div>
                 <div className="text-right">
                     <span className="text-purple-600 text-sm"> {OLlamaModelTitle[model as OLlamaModel]}</span>

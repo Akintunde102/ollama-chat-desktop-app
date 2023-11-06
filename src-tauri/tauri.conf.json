@@ -4,7 +4,8 @@
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
     "devPath": "http://localhost:3000",
-    "distDir": "../out"
+    "distDir": "../out",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "ollama-chat",
@@ -20,6 +21,10 @@
         "message": true, 
         "open": true, 
         "save": true
+      },
+      "http": {
+        "all": true, 
+        "request": true
       }
     },
     "bundle": {
@@ -56,7 +61,14 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": null,
+      "dangerousDisableAssetCspModification": true,
+      "dangerousRemoteDomainIpcAccess": [
+        {
+          "enableTauriAPI": true,
+          "domain": "localhost:11434",
+          "windows": ["main"]
+        }]
     },
     "updater": {
       "active": false
