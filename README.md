@@ -1,5 +1,9 @@
 ## Installation
+
+### Install Dependency
 - Download Ollama here: `https://ollama.ai`
+
+### Install App
 
 ```shell
 yarn install
@@ -16,5 +20,4 @@ yarn run tauri dev
 ```shell
 yarn run tauri build
 ```
-
-<img width="852" alt="Screenshot 2023-11-07 at 18 18 45" src="https://github.com/Akintunde102/ollama-chat-desktop-app/assets/17033759/87ab1655-622d-4926-9643-e0ecb63947e6">
+<img width="1019" alt="OllamaChat" src="https://github.com/Akintunde102/ollama-chat-desktop-app/assets/17033759/e957d7ad-ab62-46e5-80ec-c1448b7c3a22">
