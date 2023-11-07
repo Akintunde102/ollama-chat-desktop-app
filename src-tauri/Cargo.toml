@@ -15,7 +15,7 @@ rust-version = "1.60"
 tauri-build = { version = "1.5.0", features = [] }
 
 [dependencies]
-tauri = { version = "1.5.2", features = [ "http-all", "dialog-all"] }
+tauri = { version = "1.5.2", features = [ "shell-execute", "http-all", "dialog-all"] }
 
 [dependencies.fix-path-env]
 git = "https://github.com/tauri-apps/fix-path-env-rs"
