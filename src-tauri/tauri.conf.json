@@ -8,13 +8,12 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "ollama-chat",
+    "productName": "Ollama Chat",
     "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
       "shell": {
-        "all": true,
         "scope": [
           {
             "name": "start-ollama-server",
@@ -28,7 +27,6 @@
           }
         ]
       },
-      "all": false,
       "dialog": {
         "all": true, 
         "ask": true,     
