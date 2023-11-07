@@ -13,6 +13,21 @@
   },
   "tauri": {
     "allowlist": {
+      "shell": {
+        "all": true,
+        "scope": [
+          {
+            "name": "start-ollama-server",
+            "cmd": "ollama",
+            "args": ["serve"]
+          },
+          {
+            "name": "kill-all-ollama-servers",
+            "cmd": "killall",
+            "args": ["ollama"]
+          }
+        ]
+      },
       "all": false,
       "dialog": {
         "all": true, 
@@ -61,14 +76,7 @@
       }
     },
     "security": {
-      "csp": null,
-      "dangerousDisableAssetCspModification": true,
-      "dangerousRemoteDomainIpcAccess": [
-        {
-          "enableTauriAPI": true,
-          "domain": "localhost:11434",
-          "windows": ["main"]
-        }]
+      "csp": null
     },
     "updater": {
       "active": false

@@ -1,22 +1,24 @@
 "use client"
-import React, { useState, ChangeEvent, useEffect, use } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import { ResponseDisplay, TopPanelInfo } from './components';
 import { OllamaModelItems } from './component-utils';
 import { useEnterKeyListener } from './hooks/useEnterKeyListener';
 import { Loader } from './components/Loader';
 import { callOllama } from './store/ollama/api';
 import { OLlamaModel } from './store/ollama/models';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useInterval } from 'usehooks-ts';
 import { LightPills } from './components/LightPills';
 import createUIIndication from './utils/createUIIndication';
 import SimpleError from './components/SimpleError';
+import { ollamaServer } from './utils/tauriCommand';
 
 const MyForm: React.FC = () => {
   const [model, setModel] = useState<OLlamaModel>(OLlamaModel.Llama2);
+  const [submissionStamp, setSubmissionStamp] = useState<Date | undefined>(undefined);
   const [prompt, setPrompt] = useState<string>('');
   const [response, setResponse] = useState<any | null>(null);
-  const [ollamaServerState, setOllamaServerState] = useState<"on" | "off" | "unclear">("on");
+  const [ollamaServerState, setOllamaServerState] = useState<"on" | "off" | "unstable" | "unknown">("unknown");
   const [loading, setLoading] = useState(false);
   const [modelItems, setModelItems] = useState<Array<any>>([]);
   const [intervalItemCall, setIntervalItemCall] = useState(true);
@@ -26,8 +28,25 @@ const MyForm: React.FC = () => {
     ignoreHandlerWhenShiftKeyIsPressed: true
   });
 
+  useEffect(() => {
+    if (ollamaServerState !== "on") {
+      ollamaServer().start().then((res) => {
+        if (res.code === 0) {
+          setOllamaServerState("on");
+          return;
+        }
+      });
+    }
+  }, [ollamaServerState]);
+
   useInterval(
     () => {
+
+      if (modelItems.length) {
+        setIntervalItemCall(false);
+        return;
+      }
+
       OllamaModelItems().then((retrievedModelItems) => {
         setIntervalItemCall(false);
         setOllamaServerState("on");
@@ -41,16 +60,11 @@ const MyForm: React.FC = () => {
   );
 
   useEffect(() => {
-    if (pressed) {
+    if (submissionStamp || pressed) {
       handleSubmit();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pressTime]);
-
-  useEffect(() => {
-    handleSubmit()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [model])
+  }, [submissionStamp, pressTime])
 
 
   const errorIndicator = createUIIndication(setError);
@@ -62,12 +76,14 @@ const MyForm: React.FC = () => {
       setOllamaServerState("off");
       return;
     }
-    setOllamaServerState("unclear")
+
+    setOllamaServerState("unstable")
   };
 
 
   const handleSubmit = async () => {
     try {
+
       if (!prompt) {
         errorIndicator.endSoon({ startMessage: "Please Fill In Box With A Message", endMessage: "" })
         return;
@@ -83,17 +99,21 @@ const MyForm: React.FC = () => {
         },
         endPoint: "postPrompt",
       });
+
       setResponse(message);
       loadingIndicator.end();
     } catch (error) {
+
       loadingIndicator.end();
       processOllamaCallError(error as any)
+
     }
   };
 
 
   const handleModelChange = (model: OLlamaModel) => {
     setModel(model);
+    setSubmissionStamp(new Date());
   };
 
   const handlePromptChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -104,13 +124,22 @@ const MyForm: React.FC = () => {
 
   return (
     <main className="bg-white">
-      <TopPanelInfo text="Your Ollama App Seems broken, Please Restart" displayCondition={ollamaServerState === "unclear"} />
+      {
+        ollamaServerState === "unknown" &&
+        (
+          <div className="flex flex-col h-screen items-center justify-center">
+            <Loader loading={true} />
+            <p className="block mt-5">Loading Ollama Server</p>
+          </div>
+        )
+      }
+      <TopPanelInfo text="Your Ollama App Seems broken, Please Restart" displayCondition={ollamaServerState === "unstable"} />
       <TopPanelInfo text="Please Turn on Your Ollama App, then Restart the app" displayCondition={ollamaServerState === "off"} />
       {
         ollamaServerState === "on" && (
           <div className="flex flex-col">
             <div className="z-30 w-full items-center font-mono text-sm">
-              <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }} className="mx-auto bg-white p-6 shadow-md w-full">
+              <form onSubmit={(e) => { e.preventDefault(); setSubmissionStamp(new Date); }} className="mx-auto bg-white p-6 shadow-md w-full">
                 <div className="mb-4">
                   <div className="flex justify-between">
                     <div className="text-left">
@@ -119,7 +148,11 @@ const MyForm: React.FC = () => {
                       </label>
                     </div>
                     <div className="text-right">
-                      <LightPills activeValue={model} onClickHandler={handleModelChange} items={modelItems} />
+                      {
+                        modelItems.length === 0 ? (<Loader loading={true} />) : (
+                          <LightPills activeValue={model} onClickHandler={handleModelChange} items={modelItems} />
+                        )
+                      }
                     </div>
                   </div>
                   <textarea
