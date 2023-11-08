@@ -6,18 +6,21 @@ import { useEnterKeyListener } from './hooks/useEnterKeyListener';
 import { Loader } from './components/Loader';
 import { callOllama } from './store/ollama/api';
 import { OLlamaModel } from './store/ollama/models';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { useInterval } from 'usehooks-ts';
 import { LightPills } from './components/LightPills';
 import createUIIndication from './utils/createUIIndication';
 import SimpleError from './components/SimpleError';
 import { ollamaServer } from './utils/tauriCommand';
+import FullPageLoader from './components/FullPageLoader';
+import { formatResponse } from './store/ollama/format-response';
 
 const MyForm: React.FC = () => {
   const [model, setModel] = useState<OLlamaModel>(OLlamaModel.Llama2);
+  const [context, setContext] = useState<any[]>([]);
   const [submissionStamp, setSubmissionStamp] = useState<Date | undefined>(undefined);
   const [prompt, setPrompt] = useState<string>('');
-  const [response, setResponse] = useState<any | null>(null);
+  const [responseDetails, setResponseDetails] = useState<any | null>(null);
   const [ollamaServerState, setOllamaServerState] = useState<"on" | "off" | "unstable" | "unknown">("unknown");
   const [loading, setLoading] = useState(false);
   const [modelItems, setModelItems] = useState<Array<any>>([]);
@@ -54,7 +57,8 @@ const MyForm: React.FC = () => {
       }).catch(error => {
         processOllamaCallError(error)
         setIntervalItemCall(true);
-      })
+      });
+
     },
     intervalItemCall ? 1000 : null,
   );
@@ -89,24 +93,28 @@ const MyForm: React.FC = () => {
         return;
       }
 
-      setLoading(true);
       loadingIndicator.start();
 
-      const message = await callOllama({
+      const response = await callOllama({
         data: {
           model: model,
           prompt: prompt,
+          context
         },
         endPoint: "postPrompt",
       });
 
-      setResponse(message);
+      const formattedResponse = formatResponse(response);
+
+      setContext(formattedResponse.context)
+
+      setResponseDetails(formattedResponse);
+
       loadingIndicator.end();
+
     } catch (error) {
-
       loadingIndicator.end();
-      processOllamaCallError(error as any)
-
+      processOllamaCallError(error as any);
     }
   };
 
@@ -122,69 +130,67 @@ const MyForm: React.FC = () => {
     }
   };
 
+
+  if (ollamaServerState !== "on") {
+    return (
+      <main className="bg-white">
+        <FullPageLoader loading={ollamaServerState === "unknown"} loadingText="Loading Ollama Server" />
+        <TopPanelInfo text="Your Ollama App Seems broken, Please Restart" displayCondition={ollamaServerState === "unstable"} />
+        <TopPanelInfo text="Please Turn on Your Ollama App, then Restart the app" displayCondition={ollamaServerState === "off"} />
+      </main>
+    )
+  }
+
   return (
     <main className="bg-white">
-      {
-        ollamaServerState === "unknown" &&
-        (
-          <div className="flex flex-col h-screen items-center justify-center">
-            <Loader loading={true} />
-            <p className="block mt-5">Loading Ollama Server</p>
-          </div>
-        )
-      }
-      <TopPanelInfo text="Your Ollama App Seems broken, Please Restart" displayCondition={ollamaServerState === "unstable"} />
-      <TopPanelInfo text="Please Turn on Your Ollama App, then Restart the app" displayCondition={ollamaServerState === "off"} />
-      {
-        ollamaServerState === "on" && (
-          <div className="flex flex-col">
-            <div className="z-30 w-full items-center font-mono text-sm">
-              <form onSubmit={(e) => { e.preventDefault(); setSubmissionStamp(new Date); }} className="mx-auto bg-white p-6 shadow-md w-full">
-                <div className="mb-4">
-                  <div className="flex justify-between">
-                    <div className="text-left">
-                      <label htmlFor="prompt" className="block text-gray-700 font-bold mb-2">
-                        Prompt:
-                      </label>
-                    </div>
-                    <div className="text-right">
-                      {
-                        modelItems.length === 0 ? (<Loader loading={true} />) : (
-                          <LightPills activeValue={model} onClickHandler={handleModelChange} items={modelItems} />
-                        )
-                      }
-                    </div>
-                  </div>
-                  <textarea
-                    id="prompt"
-                    placeholder='How to prepare pizza'
-                    style={{ height: 200 }}
-                    value={prompt}
-                    onChange={(e: any) => handlePromptChange(e)}
-                    className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  />
+      <div className="flex flex-col">
+        <div className="z-30 w-full items-center font-mono text-sm mx-auto bg-white p-6 shadow-md">
+          <form onSubmit={(e) => { e.preventDefault(); setSubmissionStamp(new Date); }}>
+            <div className="mb-4">
+              <div className="flex justify-between">
+                <div className="text-left">
+                  <label htmlFor="prompt" className="block text-gray-700 font-bold mb-2">
+                    Prompt:
+                  </label>
                 </div>
-                <div className="flex justify-between">
-                  <div className="text-left">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="btn bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    >
-                      Submit
-                    </button>
-                    <SimpleError error={error} />
-                  </div>
-                  <div className="text-right">
-                    <Loader loading={loading} />
-                  </div>
+                <div className="text-right">
+                  {
+                    modelItems.length === 0
+                      ? (<Loader loading={true} />)
+                      : (
+                        <LightPills activeValue={model} onClickHandler={handleModelChange} items={modelItems} />
+                      )
+                  }
                 </div>
-                <ResponseDisplay response={response} />
-              </form>
+              </div>
+              <textarea
+                id="prompt"
+                placeholder='How to prepare pizza'
+                style={{ height: 200 }}
+                value={prompt}
+                onChange={(e: any) => handlePromptChange(e)}
+                className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
             </div>
-          </div>
-        )
-      }
+            <div className="flex justify-between">
+              <div className="text-left">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Submit
+                </button>
+                <SimpleError error={error} />
+              </div>
+              <div className="text-right">
+                <Loader loading={loading} />
+              </div>
+            </div>
+          </form>
+          <ResponseDisplay text={responseDetails?.text} model={responseDetails?.model} />
+        </div>
+      </div>
     </main>
   );
 };

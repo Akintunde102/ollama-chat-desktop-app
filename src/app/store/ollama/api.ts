@@ -20,15 +20,18 @@ export const OLLAMA_ENDPOINTS: Record<OllamaEndpoints, {
     }
 }
 
-export const callOllama = async ({
+export const callOllama = async <T>({
     data,
     endPoint,
     getFullResponseObj,
 }: {
-    data?: Record<any, any>;
+    data?: T;
     endPoint: OllamaEndpoints;
     getFullResponseObj?: boolean;
 }) => {
+
+    console.log({ data });
+
     const { verb, url } = OLLAMA_ENDPOINTS[endPoint];
 
     let response;

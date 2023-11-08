@@ -6,6 +6,11 @@ body {
   color: rgb(var(--foreground-rgb));
 }
 
+::selection {
+  background-color:  indigo; /* Replace with your desired highlight color */
+  color: #fff;
+}
+
 
 @layer utilities {
   .btn[disabled] {

@@ -2,16 +2,14 @@ import { OLlamaModel, OLlamaModelTitle } from "../store/ollama/models";
 import { Display } from "./Display"
 
 interface ResponseDisplayProps {
-    response: string;
+    text: string;
+    model: string;
 }
 
-export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
-    if (!response) {
+export const ResponseDisplay = ({ text, model }: ResponseDisplayProps) => {
+    if (!text) {
         return <></>
     }
-
-    const responseArr = response.split("\n");
-    const { model } = JSON.parse(responseArr[0]);
 
     return (
         <div className="mt-10">
@@ -23,6 +21,6 @@ export const ResponseDisplay = ({ response }: ResponseDisplayProps) => {
                     <span className="text-purple-600 text-sm"> {OLlamaModelTitle[model as OLlamaModel]}</span>
                 </div>
             </div>
-            <Display textArr={responseArr} />
+            <Display text={text.trim()} />
         </div >)
 }
